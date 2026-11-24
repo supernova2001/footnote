@@ -1,0 +1,37 @@
+# Pipeline check on a CPU: a 135M instruct model, plain LoRA, a few steps. Not a real judge.
+model: HuggingFaceTB/SmolLM2-135M-Instruct
+chat_template_kwargs: {}
+
+data:
+  train: data/smoke/train.jsonl
+  val: data/smoke/val.jsonl
+  max_length: 1536
+
+quantization:
+  load_in_4bit: false
+
+lora:
+  r: 8
+  alpha: 16
+  dropout: 0.05
+  target_modules: all-linear
+
+training:
+  epochs: 1
+  max_steps: 3
+  learning_rate: 2.0e-4
+  lr_scheduler: cosine
+  warmup_ratio: 0.0
+  per_device_batch_size: 2
+  gradient_accumulation: 1
+  gradient_checkpointing: false
+  logging_steps: 1
+  eval_steps: 3
+  save_steps: 1000
+  seed: 13
+  report_to: none
+
+output_dir: outputs/smoke
+
+hub:
+  push: false

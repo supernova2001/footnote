@@ -1,0 +1,42 @@
+# QLoRA on a free Kaggle/Colab T4 (16 GB). Qwen3-1.7B is Apache-2.0.
+model: Qwen/Qwen3-1.7B
+chat_template_kwargs:
+  enable_thinking: false   # the judge answers with the JSON object, no reasoning block
+
+data:
+  train: data/out/train.jsonl
+  val: data/out/val.jsonl
+  max_length: 2048         # rows longer than this are dropped (and counted), never truncated
+
+quantization:
+  load_in_4bit: true
+  quant_type: nf4
+  double_quant: true
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: all-linear   # q/k/v/o and the MLP projections
+
+training:
+  epochs: 3
+  max_steps: -1
+  learning_rate: 2.0e-4
+  lr_scheduler: cosine
+  warmup_ratio: 0.05
+  per_device_batch_size: 4
+  gradient_accumulation: 4     # effective batch 16
+  gradient_checkpointing: true
+  logging_steps: 10
+  eval_steps: 100
+  save_steps: 200
+  seed: 13
+  report_to: none              # "wandb" to log the run
+
+output_dir: outputs/qwen3-1.7b-judge
+
+hub:
+  push: false
+  repo_id: null                # e.g. your-name/footnote-judge-qwen3-1.7b
+  private: true

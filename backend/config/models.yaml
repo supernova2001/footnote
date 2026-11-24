@@ -1,0 +1,92 @@
+# One route per decision a model makes. Code asks for a route ("ask.answer"), never a model id,
+# so a model, or a whole provider, can be swapped without a code change.
+#
+# provider: anthropic (Claude, the default) | openai. Routes may mix providers.
+# effort:   reasoning depth (low | medium | high | xhigh | max). Claude Opus 5.5 always thinks and
+#           effort is its only dial (default medium); OpenAI reasoning models take the same values.
+# Claude routes also opt into server-side refusal fallbacks (a substitute model re-runs a declined
+# request); see llm/client.py.
+#
+# The judge runs on a different model from the writer on purpose: no model grades its own output,
+# and the eval grader is a third model.
+# Prices are USD per million tokens (input, output), used for the cost ledger and the daily cap.
+
+routes:
+  ask.guard:       { model: claude-opus-5-5,   effort: low,    max_tokens: 2048 }
+  ask.plan:        { model: claude-opus-5-5,   effort: low,    max_tokens: 2048 }
+  ask.answer:      { model: claude-opus-5-5,   effort: medium, max_tokens: 8000 }
+  ask.claims:      { model: claude-opus-5-5,   effort: low,    max_tokens: 4096 }
+  judge.grounding: { model: claude-sonnet-5-5, effort: low,    max_tokens: 1024 }
+  writer.outline:  { model: claude-opus-5-5,   effort: high,   max_tokens: 8000 }
+  writer.section:  { model: claude-opus-5-5,   effort: medium, max_tokens: 8000 }
+  writer.editor:   { model: claude-sonnet-5-5, effort: medium, max_tokens: 4096 }
+  research.agent:  { model: claude-opus-5-5,   effort: medium, max_tokens: 16000 }
+  chat.supervisor: { model: claude-opus-5-5,   effort: medium, max_tokens: 16000 }
+  evals.grader:    { model: claude-opus-5-5,   effort: medium, max_tokens: 4096 }  # not the in-agent judge's model
+  evals.questions: { model: claude-opus-5-5,   effort: medium, max_tokens: 8000 }
+
+# FOOTNOTE_LLM_PROVIDER=<preset> replaces every route with that preset. Same shape, same
+# independence rule in each: the writer never grades itself, and the eval grader is a third model.
+presets:
+  # The default OpenAI preset: the cheapest tiers. Writer gpt-6-luna; judge and editor gpt-5-nano
+  # (another model family, so the writer is never graded by itself); eval grader gpt-5-mini.
+  # Roughly 15-20x cheaper per answer than openai-quality on the token profile measured in the live
+  # runs; whether quality holds is what `footnote eval answers` / `eval judge` are for.
+  openai:
+    ask.guard:       { provider: openai, model: gpt-6-luna, effort: low,    max_tokens: 2048 }
+    ask.plan:        { provider: openai, model: gpt-6-luna, effort: low,    max_tokens: 2048 }
+    ask.answer:      { provider: openai, model: gpt-6-luna, effort: medium, max_tokens: 8000 }
+    ask.claims:      { provider: openai, model: gpt-6-luna, effort: low,    max_tokens: 4096 }
+    judge.grounding: { provider: openai, model: gpt-5-nano, effort: low,    max_tokens: 2048 }
+    writer.outline:  { provider: openai, model: gpt-6-luna, effort: medium, max_tokens: 8000 }
+    writer.section:  { provider: openai, model: gpt-6-luna, effort: medium, max_tokens: 8000 }
+    writer.editor:   { provider: openai, model: gpt-5-nano, effort: low,    max_tokens: 4096 }
+    research.agent:  { provider: openai, model: gpt-6-luna, effort: medium, max_tokens: 16000 }
+    chat.supervisor: { provider: openai, model: gpt-6-luna, effort: medium, max_tokens: 16000 }
+    evals.grader:    { provider: openai, model: gpt-5-mini, effort: medium, max_tokens: 4096 }
+    evals.questions: { provider: openai, model: gpt-6-luna, effort: medium, max_tokens: 8000 }
+
+  # The mid/top tiers: writer gpt-6.2-sol, judge gpt-6.1-terra, eval grader gpt-6.2-astra.
+  openai-quality:
+    ask.guard:       { provider: openai, model: gpt-6.2-sol,   effort: low,    max_tokens: 2048 }
+    ask.plan:        { provider: openai, model: gpt-6.2-sol,   effort: low,    max_tokens: 2048 }
+    ask.answer:      { provider: openai, model: gpt-6.2-sol,   effort: medium, max_tokens: 8000 }
+    ask.claims:      { provider: openai, model: gpt-6.2-sol,   effort: low,    max_tokens: 4096 }
+    judge.grounding: { provider: openai, model: gpt-6.1-terra, effort: low,    max_tokens: 1024 }
+    writer.outline:  { provider: openai, model: gpt-6.2-sol,   effort: high,   max_tokens: 8000 }
+    writer.section:  { provider: openai, model: gpt-6.2-sol,   effort: medium, max_tokens: 8000 }
+    writer.editor:   { provider: openai, model: gpt-6.1-terra, effort: medium, max_tokens: 4096 }
+    research.agent:  { provider: openai, model: gpt-6.2-sol,   effort: medium, max_tokens: 16000 }
+    chat.supervisor: { provider: openai, model: gpt-6.2-sol,   effort: medium, max_tokens: 16000 }
+    evals.grader:    { provider: openai, model: gpt-6.2-astra, effort: medium, max_tokens: 4096 }
+    evals.questions: { provider: openai, model: gpt-6.2-sol,   effort: medium, max_tokens: 8000 }
+
+# Which judge backs `judge.grounding` at run time:
+#   api     - the judge.grounding route above (whichever provider it names)
+#   local   - the QLoRA fine-tuned model (LOCAL_JUDGE_URL), see finetune/
+#   cascade - local first; escalate to the api judge when the local judge is unsure (partial) or
+#             its reply is invalid. Cheapest setting that keeps api-level recall on unsupported.
+judge:
+  backend: api
+  escalate_on: [partial, invalid]
+  concurrency: 6
+
+limits:
+  ask:    { max_subqueries: 3, retrieve_k: 24, rerank_top_n: 8, max_revisions: 1 }
+  writer: { max_sections: 5, section_retries: 2, editor_retries: 1, passages_per_section: 6 }
+  agent:  { max_iterations: 8 }
+
+# Standard-tier list prices. OpenAI's from developers.openai.com/api/docs/pricing (read 2026-11-18).
+pricing:
+  claude-opus-5-5:   { input: 4.00, output: 20.00 }
+  claude-sonnet-5-5: { input: 2.00, output: 10.00 }
+  claude-haiku-5-5:  { input: 0.10, output: 0.50 }
+  gpt-6.2-astra:     { input: 8.00, output: 40.00 }
+  gpt-6.2-sol:       { input: 2.00, output: 10.00 }
+  gpt-6.1-terra:     { input: 1.00, output: 5.00 }
+  gpt-6-luna:        { input: 0.10, output: 0.50 }
+  gpt-5-nano:        { input: 0.05, output: 0.40 }
+  gpt-5-mini:        { input: 0.25, output: 2.00 }
+  gpt-5.4-mini:      { input: 0.75, output: 4.50 }
+  gpt-5.4-nano:      { input: 0.20, output: 1.25 }
+  local:             { input: 0.0,  output: 0.0 }

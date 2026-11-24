@@ -1,0 +1,42 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# node / next
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# corpus downloads (re-fetchable; the licensed offline snapshot backend/data/snapshot.json is kept)
+backend/data/raw/
+backend/data/*.jsonl
+
+# Researcher import outputs: they hold profile ids from a private dataset (footnote import-researchers)
+backend/data/researcher-*.json
+
+# eval runs: keep latest.json (the /evals page reads it), not every timestamped copy
+backend/evals/results/*
+!backend/evals/results/latest.json
+
+# fine-tuning artefacts (adapters, GGUF files, generated datasets)
+finetune/outputs/
+finetune/data/*.jsonl
+*.gguf
+*.safetensors
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,17 @@
+{
+  "query": "(TITLE:\"reading comprehension\" OR TITLE:\"literacy\" OR TITLE:\"vocabulary\") AND (LICENSE:\"cc by\" OR LICENSE:\"cc0\") AND OPEN_ACCESS:y AND HAS_FT:y AND SRC:MED",
+  "pmcids": [
+    "PMC3292515",
+    "PMC4668324",
+    "PMC3718659",
+    "PMC1435902",
+    "PMC4520061",
+    "PMC4016258",
+    "PMC3374546",
+    "PMC3650931",
+    "PMC5358017",
+    "PMC7187482",
+    "PMC4381816",
+    "PMC4468598"
+  ]
+}

@@ -1,0 +1,15 @@
+# Product release requirements, not measured results. Change these deliberately in review.
+max_age_hours: 168
+suites:
+  retrieval:
+    selector: {strategy: hybrid_rerank}
+    min_cases: 50
+    minimums: {recall_at_10: 0.80, mrr: 0.60}
+  answers:
+    selector: {strategy: hybrid_rerank}
+    min_cases: 50
+    minimums: {faithfulness: 0.95, citation_precision: 0.95, answer_relevance: 0.70, abstention_accuracy: 0.80}
+  judge:
+    selector: {backend: api}
+    min_cases: 100
+    minimums: {macro_f1: 0.80, unsupported_recall: 0.90, json_valid_rate: 0.99}

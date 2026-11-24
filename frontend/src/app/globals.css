@@ -1,0 +1,234 @@
+@import "tailwindcss";
+
+/* ── Tokens ────────────────────────────────────────────────────────────────
+   Light is the default; dark follows the OS unless the reader picked a theme
+   (data-theme on <html>, set before paint by the inline script in layout). */
+
+:root {
+  color-scheme: light;
+  --paper: #fbf9f4;
+  --surface: #ffffff;
+  --sunk: #f3efe6;
+  --ink: #1c1b19;
+  --muted: #5d5a54;
+  --faint: #8a857c;
+  --rule: #e2dccf;
+  --accent: #8c2f1f;
+  --accent-soft: #f5e6e0;
+  --ok: #1d6b41;
+  --ok-soft: #e2f1e7;
+  --warn: #855400;
+  --warn-soft: #f8ecd2;
+  --bad: #a3242b;
+  --bad-soft: #f9e2e2;
+  --focus: #1f4fd1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #151412;
+    --surface: #1d1b18;
+    --sunk: #24211d;
+    --ink: #ece7dc;
+    --muted: #aaa396;
+    --faint: #7d776c;
+    --rule: #36322b;
+    --accent: #ec9a80;
+    --accent-soft: #3a2420;
+    --ok: #7fd1a0;
+    --ok-soft: #1b3326;
+    --warn: #f0c46e;
+    --warn-soft: #3a2f17;
+    --bad: #f4a3a3;
+    --bad-soft: #3e2023;
+    --focus: #8fb0ff;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #151412;
+  --surface: #1d1b18;
+  --sunk: #24211d;
+  --ink: #ece7dc;
+  --muted: #aaa396;
+  --faint: #7d776c;
+  --rule: #36322b;
+  --accent: #ec9a80;
+  --accent-soft: #3a2420;
+  --ok: #7fd1a0;
+  --ok-soft: #1b3326;
+  --warn: #f0c46e;
+  --warn-soft: #3a2f17;
+  --bad: #f4a3a3;
+  --bad-soft: #3e2023;
+  --focus: #8fb0ff;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunk: var(--sunk);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-focus: var(--focus);
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* The chat composer shows focus on its rounded frame (focus-within), not on the bare textarea. */
+.chat-input:focus-visible {
+  outline: none;
+}
+
+/* The Ask chat fills the window like a chat app: no site footer under it, so no page scroll. */
+body:has([data-chat-page]) > footer {
+  display: none;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+/* ── Reading text ──────────────────────────────────────────────────────── */
+
+.prose-serif {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+/* A sentence the judge has ruled on. Colour is never the only signal: every
+   ruled sentence also carries a glyph button with a text label. */
+.seg {
+  border-radius: 2px;
+  transition: background-color 120ms ease;
+}
+.seg-partial {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--warn);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+.seg-unsupported {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--bad);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 5px;
+}
+.seg-pending {
+  color: var(--muted);
+}
+.seg-active {
+  background: var(--accent-soft);
+}
+
+.fn-marker {
+  font-family: var(--font-sans);
+  font-size: 0.68em;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--accent);
+  padding: 0.1em 0.2em;
+  margin-left: 0.05em;
+  border-radius: 3px;
+  vertical-align: super;
+  cursor: pointer;
+}
+.fn-marker:hover,
+.fn-marker[aria-expanded="true"] {
+  background: var(--accent-soft);
+}
+
+.verdict-glyph {
+  font-family: var(--font-sans);
+  font-size: 0.7em;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: super;
+  padding: 0.12em 0.25em;
+  margin-left: 0.1em;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* ── Motion ────────────────────────────────────────────────────────────── */
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.pulse {
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+@keyframes caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.caret::after {
+  content: "▍";
+  margin-left: 1px;
+  color: var(--accent);
+  animation: caret 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

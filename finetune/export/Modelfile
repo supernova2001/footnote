@@ -1,0 +1,29 @@
+# Ollama model for Footnote's grounding judge.
+#   ollama create footnote-judge -f Modelfile
+#   ollama run footnote-judge          (or the OpenAI-compatible API at http://localhost:11434/v1)
+#
+# The template reproduces the training prompt exactly: Qwen3's ChatML with thinking disabled, i.e. the
+# assistant turn opens with an empty <think></think> block and the model answers with the JSON verdict.
+FROM ./footnote-judge-q4_k_m.gguf
+
+TEMPLATE """{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}
+{{- range .Messages }}
+{{- if eq .Role "user" }}<|im_start|>user
+{{ .Content }}<|im_end|>
+{{ else if eq .Role "assistant" }}<|im_start|>assistant
+{{ .Content }}<|im_end|>
+{{ end }}
+{{- end }}<|im_start|>assistant
+<think>
+
+</think>
+
+"""
+
+PARAMETER temperature 0
+PARAMETER num_ctx 4096
+PARAMETER num_predict 256
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|im_start|>"

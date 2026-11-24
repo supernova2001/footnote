@@ -1,0 +1,115 @@
+# What Footnote ingests, and under which licence. Everything here is either in the US public
+# domain (published 1930 or earlier) or openly licensed (CC BY / CC BY-SA / CC0). Nothing is
+# scraped: Wikipedia and Wikidata through their APIs, Project Gutenberg through its PGLAF mirror
+# and published catalogue feed, papers through the Europe PMC REST API.
+#
+# Names and life years come from the Gutenberg catalogue's author records; Wikidata (CC0)
+# overrides the years when the bio is fetched. Every id below was checked against the live
+# source on 2026-11-18 (Gutenberg catalogue feed, Wikipedia API, Europe PMC search). The ingest re-checks each one and refuses a mismatch: a
+# Gutenberg text must carry the US public-domain notice, a paper must carry a CC BY or CC0 licence.
+
+scholars:
+  - id: w-e-b-du-bois
+    name: W. E. B. Du Bois
+    born: 1868
+    died: 1963
+    wikipedia: W._E._B._Du_Bois
+    works:
+      - { gutenberg: 408, title: "The Souls of Black Folk", year: 1903 }
+      - { gutenberg: 17700, title: "The Suppression of the African Slave-Trade to the United States of America", year: 1896 }
+      - { gutenberg: 15359, title: "The Negro", year: 1915 }
+      - { gutenberg: 15210, title: "Darkwater: Voices from Within the Veil", year: 1920 }
+
+  - id: carter-g-woodson
+    name: Carter G. Woodson
+    born: 1875
+    died: 1950
+    wikipedia: Carter_G._Woodson
+    works:
+      - { gutenberg: 11089, title: "The Education of the Negro Prior to 1861", year: 1915 }
+      - { gutenberg: 10968, title: "A Century of Negro Migration", year: 1918 }
+      - { gutenberg: 38963, title: "The History of the Negro Church", year: 1921 }
+
+  - id: booker-t-washington
+    name: Booker T. Washington
+    born: 1856
+    died: 1915
+    wikipedia: Booker_T._Washington
+    works:
+      - { gutenberg: 2376, title: "Up from Slavery: An Autobiography", year: 1901 }
+      - { gutenberg: 26507, title: "The Future of the American Negro", year: 1899 }
+
+  - id: ida-b-wells
+    name: Ida B. Wells
+    born: 1862
+    died: 1931
+    wikipedia: Ida_B._Wells
+    works:
+      - { gutenberg: 14975, title: "Southern Horrors: Lynch Law in All Its Phases", year: 1892 }
+      - { gutenberg: 14977, title: "The Red Record", year: 1895 }
+      - { gutenberg: 14976, title: "Mob Rule in New Orleans", year: 1900 }
+
+  - id: frederick-douglass
+    name: Frederick Douglass
+    born: 1818
+    died: 1895
+    wikipedia: Frederick_Douglass
+    works:
+      - { gutenberg: 23, title: "Narrative of the Life of Frederick Douglass, an American Slave", year: 1845 }
+      - { gutenberg: 202, title: "My Bondage and My Freedom", year: 1855 }
+
+  - id: kelly-miller
+    name: Kelly Miller
+    born: 1863
+    died: 1939
+    wikipedia: Kelly_Miller_(scientist)
+    works:
+      - { gutenberg: 65050, title: "Brief for the Higher Education of the Negro", year: 1900 }
+      - { gutenberg: 31279, title: "A Review of Hoffman's Race Traits and Tendencies of the American Negro", year: 1897 }
+
+  - id: benjamin-brawley
+    name: Benjamin Brawley
+    born: 1882
+    died: 1939
+    wikipedia: Benjamin_Brawley
+    works:
+      - { gutenberg: 12101, title: "A Social History of the American Negro", year: 1921 }
+      - { gutenberg: 35063, title: "The Negro in Literature and Art in the United States", year: 1918 }
+
+  - id: george-washington-williams
+    name: George Washington Williams
+    born: 1849
+    died: 1891
+    wikipedia: George_Washington_Williams
+    works:
+      - { gutenberg: 15735, title: "History of the Negro Race in America from 1619 to 1880, Vol. 1", year: 1882 }
+
+  - id: archibald-grimke
+    name: Archibald Grimké
+    born: 1849
+    died: 1930
+    wikipedia: Archibald_Grimké
+    works:
+      - { gutenberg: 31330, title: "Modern Industrialism and the Negroes of the United States", year: 1915 }
+      - { gutenberg: 31290, title: "Right on the Scaffold, or The Martyrs of 1822", year: 1901 }
+
+  # Biography only, on purpose: questions about her own writing should be answered with
+  # "the sources here do not cover that", which the answer eval measures (abstention).
+  - id: anna-julia-cooper
+    name: Anna Julia Cooper
+    born: null   # not in the Gutenberg catalogue; filled from Wikidata when the bio is fetched
+    died: null
+    wikipedia: Anna_J._Cooper
+    works: []
+
+# Open-access research papers for the writer agent ("turn this paper into a story for grade 8").
+# The query runs once; the PMC ids it picked are frozen in corpus.lock.json so the corpus, and
+# every eval built on it, is reproducible. Delete the lock file to pick again.
+papers:
+  query: '(TITLE:"reading comprehension" OR TITLE:"literacy" OR TITLE:"vocabulary") AND (LICENSE:"cc by" OR LICENSE:"cc0") AND OPEN_ACCESS:y AND HAS_FT:y AND SRC:MED'
+  sort: "CITED desc"
+  limit: 12
+  max_authors: 8
+
+# Wikipedia sections that are navigation, not prose.
+wikipedia_skip_sections: ["See also", "References", "Notes", "Citations", "Sources", "Further reading", "External links", "Bibliography", "Works cited", "Footnotes"]

@@ -1,0 +1,11 @@
+{
+  "$comment": "MCP servers the supervisor agent may use besides Footnote's own. Each tool is exposed as <server>__<tool>. Set enabled to true to attach one; stdio servers need their command on PATH.",
+  "servers": {
+    "fetch": {
+      "enabled": false,
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "allowed_tools": ["fetch"]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# built data and model artefacts (large; rebuilt by the scripts)
+data/
+outputs/
+*.gguf
+
+# per-judge eval results are kept (they back the README and GET /api/evals)
+!results/
