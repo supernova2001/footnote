@@ -90,7 +90,7 @@ flowchart LR
     WR["Writer agent<br/>research → outline → sections ∥ → assemble → review ⏸"]
     SUP["Supervisor agent"]
     RES["Research agent"]
-    J["Grounding judge<br/>Claude · fine-tuned Qwen3 · cascade"]
+    J["Grounding judge<br/>API model · fine-tuned Qwen3 · cascade"]
     MCP["MCP server<br/>search · read passage · ask · draft"]
   end
   Web -- streamed events --> API
@@ -99,6 +99,7 @@ flowchart LR
   MCP --> ASK & WR
   WR --> RES
   ASK & WR --> J
+  ASK & WR & SUP & RES & J --> LLM["LLM providers<br/>OpenAI · Gemini"]
   ASK & WR & MCP --> PC[(Pinecone<br/>keyword + semantic + rerank)]
   ASK & WR & MCP --> MG[(MongoDB<br/>texts · drafts · checkpoints · verdicts)]
   CD[Claude Desktop / Code] -- MCP --> MCP
