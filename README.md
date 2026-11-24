@@ -43,7 +43,7 @@ not cover a question, Footnote says so plainly instead of guessing.
 ### Turning research into stories
 
 **For researchers, science communicators and educators.** Choose a paper, or a scholar's body of
-work, and a reader: grade 4, grade 8 or general adult. A team of agents drafts the article section by
+work, and a reader: K-14 level. A team of agents drafts the article section by
 section, checks every claim against the paper, and checks that the writing suits the reader. The
 article then waits for a person, typically the researcher, to approve it or ask for changes, so
 nothing is published under a researcher's name without their sign-off.
